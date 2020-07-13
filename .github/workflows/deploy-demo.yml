@@ -1,0 +1,65 @@
+name: Deploy demo
+
+on:
+  push:
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - uses: actions/cache@v2
+      name: Configure pip caching
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install Python dependencies
+      run: |
+        pip install datasette sqlite-utils
+    - name: Create databases
+      run: |
+        echo '{"hello": "world"}' | sqlite-utils insert public.db records -
+        echo '{"hello": "private world"}' | sqlite-utils insert private.db records -
+        echo '{
+            "title": "datasette-auth-passwords demo",
+            "about": "simonw/datasette-auth-passwords",
+            "about_url": "https://github.com/simonw/datasette-auth-passwords",
+            "decription_html": "Sign in at <a href=\"/-/login\">/-/login</a> with username <code>root</code> and password <code>password!</code>",
+            "plugins": {
+                "datasette-auth-passwords": {
+                    "actors": {
+                        "root": {
+                            "id": "root",
+                            "name": "Root"
+                        }
+                    }
+                }
+            },
+            "databases": {
+                "private": {
+                    "allow": {
+                        "id": "*"
+                    }
+                }
+            }
+        }' > metadata.json
+    - name: Set up Cloud Run
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '275.0.0'
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: Deploy to Cloud Run
+      run: |-
+        gcloud config set run/region us-central1
+        gcloud config set project datasette-222320
+        datasette publish cloudrun public.db private.db \
+          -m metadata.json \
+          --plugin-secret datasette-auth-passwords root_password_hash 'pbkdf2_sha256$260000$a9bb87a3e9d968847a36c50cf1a4ac3d$UO1DUqulWhRLj8UZrnViiu6KaKn0C5M9IZKWB4R9JX4=' \
+          --install=https://github.com/simonw/datasette-auth-passwords/archive/$GITHUB_SHA.zip \
+          --service datasette-auth-passwords-demo
