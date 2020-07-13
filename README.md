@@ -84,6 +84,8 @@ You would run the command something like this:
         --plugin-secret root_password_hash "pbkdf2_sha256$..." \
         --service datasette-auth-passwords-demo
 
+This will allow you to log in as username `root` using the password that you used to create the hash.
+
 ## Development
 
 To set up this plugin locally, first checkout the code. Then create a new virtual environment:
