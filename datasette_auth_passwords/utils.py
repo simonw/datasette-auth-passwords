@@ -5,10 +5,6 @@ import secrets
 ALGORITHM = "pbkdf2_sha256"
 
 
-def pbkdf2(password_bytes, salt_bytes, iterations):
-    return
-
-
 def hash_password(password, salt=None, iterations=260000):
     if salt is None:
         salt = secrets.token_hex(16)
