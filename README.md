@@ -34,8 +34,10 @@ Now add the following to your `metadata.json`:
 
 The password hash can now be specified in an environment variable when you run Datasette. You can do that like so:
 
-    PASSWORD_HASH_1="pbkdf2_sha256$..." \
+    PASSWORD_HASH_1='pbkdf2_sha256$...' \
         datasette -m metadata.json
+
+Be sure to use single quotes here otherwise the `$` symbols in the password hash may be incorrectly interpreted by your shell.
 
 You will now be able to log in to your instance using the form at `/-/login` with `someusername` as the username and the password that you used to create your hash as the password.
 
