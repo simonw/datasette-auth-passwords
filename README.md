@@ -81,7 +81,7 @@ You would run the command something like this:
 
     datasette publish cloudrun mydatabase.db \
         --install datasette-auth-passwords \
-        --plugin-secret root_password_hash "pbkdf2_sha256$..." \
+        --plugin-secret datasette-auth-passwords root_password_hash 'pbkdf2_sha256$...' \
         --service datasette-auth-passwords-demo
 
 This will allow you to log in as username `root` using the password that you used to create the hash.
