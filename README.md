@@ -12,11 +12,19 @@ Install this plugin in the same environment as Datasette.
 
     $ pip install datasette-auth-passwords
 
+## Demo
+
+A demo of this plugin is running at https://datasette-auth-passwords-demo.datasette.io/
+
+The demo is configured to show the `public.db` database to everyone, but the `private.db` database only to logged in users.
+
+You can log in at https://datasette-auth-passwords-demo.datasette.io/-/login with username `root` and password `password!`.
+
 ## Usage
 
 This plugin works based on a list of username/password accounts that are hard-coded into the plugin configuration.
 
-First, you'll need to create a password hash. You can do this using the tool located at `/-/password-tool` when the plugin is installed.
+First, you'll need to create a password hash. You can do this using the tool located at `/-/password-tool` when the plugin is installed, or you can try use the hosted version of that tool at https://datasette-auth-passwords-demo.datasette.io/-/password-tool
 
 Now add the following to your `metadata.json`:
 
