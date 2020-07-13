@@ -29,8 +29,7 @@ setup(
     packages=["datasette_auth_passwords"],
     entry_points={"datasette": ["auth_passwords = datasette_auth_passwords"]},
     install_requires=["datasette"],
-    extras_require={
-        "test": ["pytest", "pytest-asyncio", "httpx"]
-    },
+    extras_require={"test": ["pytest", "pytest-asyncio", "httpx"]},
     tests_require=["datasette-auth-passwords[test]"],
+    package_data={"datasette_auth_passwords": ["templates/password_tool.html",]},
 )
