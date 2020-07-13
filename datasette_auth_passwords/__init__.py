@@ -18,7 +18,12 @@ async def password_tool(request, datasette):
 
 async def password_login(request, datasette):
     config = datasette.plugin_config("datasette-auth-passwords") or {}
-    accounts = config.get("accounts") or {}
+    accounts = {
+        key.split("_password_hash")[0]: value
+        for key, value in config.items()
+        if key.endswith("_password_hash")
+    }
+    actors = config.get("actors") or {}
     error = None
     if not accounts:
         error = "This instance does not have any configured accounts"
@@ -27,12 +32,11 @@ async def password_login(request, datasette):
     password = post_vars.get("password") or ""
     if request.method == "POST":
         # Look up user
-        account = accounts.get(username)
-        if account and verify_password(password, account.get("password_hash")):
+        password_hash = accounts.get(username)
+        if password_hash and verify_password(password, password_hash):
+            actor = actors.get(username) or {"id": "username"}
             response = Response.redirect("/")
-            response.set_cookie(
-                "ds_actor", datasette.sign({"a": account["actor"]}, "actor")
-            )
+            response.set_cookie("ds_actor", datasette.sign({"a": actor}, "actor"))
             return response
         else:
             error = "Invalid username or password"

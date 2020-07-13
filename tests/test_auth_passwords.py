@@ -3,16 +3,14 @@ from datasette_auth_passwords import utils
 import pytest
 import httpx
 
+# "password!"
+PASSWORD_HASH = "pbkdf2_sha256$260000$a9bb87a3e9d968847a36c50cf1a4ac3d$UO1DUqulWhRLj8UZrnViiu6KaKn0C5M9IZKWB4R9JX4="
+
 TEST_METADATA = {
     "plugins": {
         "datasette-auth-passwords": {
-            "accounts": {
-                "user1": {
-                    # Password is "password!"
-                    "password_hash": "pbkdf2_sha256$260000$a9bb87a3e9d968847a36c50cf1a4ac3d$UO1DUqulWhRLj8UZrnViiu6KaKn0C5M9IZKWB4R9JX4=",
-                    "actor": {"id": "user1"},
-                }
-            }
+            "actors": {"user1": {"id": "user1", "name": "User 1"}},
+            "user1_password_hash": PASSWORD_HASH,
         }
     }
 }
@@ -102,7 +100,9 @@ async def test_login(username, password, should_login):
         if should_login:
             assert response.status_code == 302
             ds_actor = response.cookies["ds_actor"]
-            assert ds.unsign(ds_actor, "actor") == {"a": {"id": "user1"}}
+            assert ds.unsign(ds_actor, "actor") == {
+                "a": {"id": "user1", "name": "User 1"}
+            }
         else:
             assert response.status_code == 200
             assert "Invalid username or password" in response.text

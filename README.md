@@ -24,15 +24,8 @@ Now add the following to your `metadata.json`:
 {
     "plugins": {
         "datasette-auth-passwords": {
-            "accounts": {
-                "your_username": {
-                    "password_hash": {
-                        "$env": "PASSWORD_HASH_1"
-                    },
-                    "actor": {
-                        "id": "your_username"
-                    }
-                }
+            "someusername_password_hash": {
+                "$env": "PASSWORD_HASH_1"
             }
         }
     }
@@ -44,13 +37,50 @@ The password hash can now be specified in an environment variable when you run D
     PASSWORD_HASH_1="pbkdf2_sha256$..." \
         datasette -m metadata.json
 
-Or by using the `--plugin-secret` option to `datasette publish`, see [Secret configuration values](https://datasette.readthedocs.io/en/stable/plugins.html#secret-configuration-values).
-
-You will now be able to log in to your instance using the form at `/-/login` with `your_username` as the username and the password that you used to create your hash as the password.
+You will now be able to log in to your instance using the form at `/-/login` with `someusername` as the username and the password that you used to create your hash as the password.
 
 You can include as many accounts as you like in the configuration, each with different usernames.
 
-The `"actor"` block in each one is the actor that will be authenticated - see [Actors](https://datasette.readthedocs.io/en/stable/authentication.html#actors) in the Datasette documentation for details.
+### Specifying actors
+
+By default, a logged in user will result in an [actor block](https://datasette.readthedocs.io/en/stable/authentication.html#actors) that just contains their username:
+
+```json
+{
+    "id": "someusername"
+}
+```
+
+You can customize the actor that will be used for a username by including an `"actors"` configuration block, like this:
+
+```json
+{
+    "plugins": {
+        "datasette-auth-passwords": {
+            "someusername_password_hash": {
+                "$env": "PASSWORD_HASH_1"
+            },
+            "actors": {
+                "someusername": {
+                    "id": "someusername",
+                    "name": "Some user"
+                }
+            }
+        }
+    }
+}
+```
+
+### Using with datasette publish
+
+If you are publishing data using a [datasette publish](https://datasette.readthedocs.io/en/stable/publish.html#datasette-publish) command you can use the `--plugin-secret` option to securely configure your password hashes (see [secret configuration values](https://datasette.readthedocs.io/en/stable/plugins.html#secret-configuration-values)).
+
+You would run the command something like this:
+
+    datasette publish cloudrun mydatabase.db \
+        --install datasette-auth-passwords \
+        --plugin-secret root_password_hash "pbkdf2_sha256$..." \
+        --service datasette-auth-passwords-demo
 
 ## Development
 
