@@ -9,8 +9,9 @@ PASSWORD_HASH = "pbkdf2_sha256$260000$a9bb87a3e9d968847a36c50cf1a4ac3d$UO1DUqulW
 TEST_METADATA = {
     "plugins": {
         "datasette-auth-passwords": {
-            "actors": {"user1": {"id": "user1", "name": "User 1"}},
+            "actors": {"user1": {"id": "userone", "name": "User 1"}},
             "user1_password_hash": PASSWORD_HASH,
+            "user2_password_hash": PASSWORD_HASH,
         }
     }
 }
@@ -77,15 +78,16 @@ async def test_login_warning_no_accounts():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "username,password,should_login",
+    "username,password,should_login,expected_username",
     [
-        ("user1", "password!", True),
-        ("user1", "password", False),
-        ("user1", "", False),
-        ("user2", "password!", False),
+        ("user1", "password!", True, "userone"),
+        ("user1", "password", False, None),
+        ("user2", "", False, None),
+        ("user2", "password!", True, "user2"),
+        ("user3", "password!", False, None),
     ],
 )
-async def test_login(username, password, should_login):
+async def test_login(username, password, should_login, expected_username):
     ds = Datasette([], memory=True, metadata=TEST_METADATA)
     async with httpx.AsyncClient(app=ds.app()) as client:
         # Get csrftoken
@@ -99,10 +101,9 @@ async def test_login(username, password, should_login):
         )
         if should_login:
             assert response.status_code == 302
-            ds_actor = response.cookies["ds_actor"]
-            assert ds.unsign(ds_actor, "actor") == {
-                "a": {"id": "user1", "name": "User 1"}
-            }
+            ds_actor_cookie = response.cookies["ds_actor"]
+            ds_actor = ds.unsign(ds_actor_cookie, "actor")["a"]
+            assert ds_actor["id"] == expected_username
         else:
             assert response.status_code == 200
             assert "Invalid username or password" in response.text

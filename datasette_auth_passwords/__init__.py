@@ -11,7 +11,11 @@ async def password_tool(request, datasette):
         hashed_password = hash_password(password)
     return Response.html(
         await datasette.render_template(
-            "password_tool.html", {"hashed_password": hashed_password,}, request=request
+            "password_tool.html",
+            {
+                "hashed_password": hashed_password,
+            },
+            request=request,
         )
     )
 
@@ -34,7 +38,7 @@ async def password_login(request, datasette):
         # Look up user
         password_hash = accounts.get(username)
         if password_hash and verify_password(password, password_hash):
-            actor = actors.get(username) or {"id": "username"}
+            actor = actors.get(username) or {"id": username}
             response = Response.redirect("/")
             response.set_cookie("ds_actor", datasette.sign({"a": actor}, "actor"))
             return response

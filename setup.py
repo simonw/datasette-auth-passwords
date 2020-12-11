@@ -31,5 +31,9 @@ setup(
     install_requires=["datasette>=0.44"],
     extras_require={"test": ["pytest", "pytest-asyncio", "httpx"]},
     tests_require=["datasette-auth-passwords[test]"],
-    package_data={"datasette_auth_passwords": ["templates/*.html",]},
+    package_data={
+        "datasette_auth_passwords": [
+            "templates/*.html",
+        ]
+    },
 )
