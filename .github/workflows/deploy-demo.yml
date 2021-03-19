@@ -65,3 +65,26 @@ jobs:
           --plugin-secret datasette-auth-passwords root_password_hash 'pbkdf2_sha256$260000$a9bb87a3e9d968847a36c50cf1a4ac3d$UO1DUqulWhRLj8UZrnViiu6KaKn0C5M9IZKWB4R9JX4=' \
           --install=https://github.com/simonw/datasette-auth-passwords/archive/$GITHUB_SHA.zip \
           --service datasette-auth-passwords-demo
+    - name: Deploy HTTP Basic auth demo
+      run: |
+        echo '{
+            "title": "datasette-auth-passwords HTTP Basic auth demo",
+            "about": "simonw/datasette-auth-passwords",
+            "about_url": "https://github.com/simonw/datasette-auth-passwords",
+            "plugins": {
+                "datasette-auth-passwords": {
+                    "http_basic_auth": true,
+                    "actors": {
+                        "root": {
+                            "id": "root",
+                            "name": "Root"
+                        }
+                    }
+                }
+            }
+        }' > metadata-basic-auth.json
+        datasette publish cloudrun public.db \
+          -m metadata-basic-auth.json \
+          --plugin-secret datasette-auth-passwords root_password_hash 'pbkdf2_sha256$260000$a9bb87a3e9d968847a36c50cf1a4ac3d$UO1DUqulWhRLj8UZrnViiu6KaKn0C5M9IZKWB4R9JX4=' \
+          --install=https://github.com/simonw/datasette-auth-passwords/archive/$GITHUB_SHA.zip \
+          --service datasette-auth-passwords-http-basic-demo
