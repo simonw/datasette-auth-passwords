@@ -94,6 +94,8 @@ This option introduces the following behaviour:
 - Every page within Datasette - even pages that normally do not use authentication, such as static assets - will display a browser login prompt
 - Users will be unable to log out without closing their browser entirely
 
+There is a demo of this mode at https://datasette-auth-passwords-http-basic-demo.datasette.io/ - sign in with username `root` and password `password!`
+
 ### Using with datasette publish
 
 If you are publishing data using a [datasette publish](https://datasette.readthedocs.io/en/stable/publish.html#datasette-publish) command you can use the `--plugin-secret` option to securely configure your password hashes (see [secret configuration values](https://datasette.readthedocs.io/en/stable/plugins.html#secret-configuration-values)).
