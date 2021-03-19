@@ -25,3 +25,27 @@ def verify_password(password, password_hash):
     assert algorithm == ALGORITHM
     compare_hash = hash_password(password, salt, iterations)
     return secrets.compare_digest(password_hash, compare_hash)
+
+
+def scope_has_valid_authorization(scope, datasette):
+    config = datasette.plugin_config("datasette-auth-passwords") or {}
+    accounts = {
+        key.split("_password_hash")[0]: value
+        for key, value in config.items()
+        if key.endswith("_password_hash")
+    }
+    actors = config.get("actors") or {}
+    headers = dict(scope.get("headers") or {})
+    authorization = headers.get(b"authorization") or b""
+    if not authorization.startswith(b"Basic "):
+        return None
+    credentials = authorization.split(b"Basic ")[1]
+    decoded = base64.b64decode(credentials).decode("ascii")
+    username, _, password = decoded.partition(":")
+    password_hash = accounts.get(username)
+    if password_hash and verify_password(password, password_hash):
+        print("verified")
+        return actors.get(username) or {"id": username}
+    else:
+        print("no match", accounts, username, password, password_hash)
+        return None

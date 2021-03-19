@@ -1,6 +1,7 @@
 from datasette import hookimpl
 from datasette.utils.asgi import Response
-from .utils import hash_password, verify_password
+from .utils import hash_password, verify_password, scope_has_valid_authorization
+from functools import wraps
 
 
 async def password_tool(request, datasette):
@@ -58,3 +59,36 @@ def register_routes():
         (r"^/-/password-tool$", password_tool),
         (r"^/-/login$", password_login),
     ]
+
+
+@hookimpl
+def asgi_wrapper(datasette):
+    config = datasette.plugin_config("datasette-auth-passwords") or {}
+    if not config.get("http_basic_auth"):
+        return lambda asgi: asgi
+
+    def wrap(app):
+        @wraps(app)
+        async def require_authorization(scope, recieve, send):
+            if scope["type"] == "http":
+                actor = scope_has_valid_authorization(scope, datasette)
+                if actor is None:
+                    return await Response.text(
+                        "401 Authorization Required",
+                        headers={
+                            "www-authenticate": 'Basic realm="Datasette", charset="UTF-8"'
+                        },
+                        status=401,
+                    ).asgi_send(send)
+            await app(scope, recieve, send)
+
+        return require_authorization
+
+    return wrap
+
+
+@hookimpl
+def actor_from_request(datasette, request):
+    actor = scope_has_valid_authorization(request.scope, datasette)
+    if actor is not None:
+        return actor

@@ -80,6 +80,19 @@ You can customize the actor that will be used for a username by including an `"a
     }
 }
 ```
+### HTTP Basic authentication option
+
+This plugin defaults to implementing login using an HTML form that sets a signed authentication cookie.
+
+You can alternatively configure it to use [HTTP Basic authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme) instead.
+
+Do this by adding `"http_basic_auth": true` to the `datasette-auth-passwords` block in your plugin configuration.
+
+This option introduces the following behaviour:
+
+- Account usernames and passwords are configured in the same way as form-based authentication
+- Every page within Datasette - even pages that normally do not use authentication, such as static assets - will display a browser login prompt
+- Users will be unable to log out without closing their browser entirely
 
 ### Using with datasette publish
 
