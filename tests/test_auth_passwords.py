@@ -97,7 +97,6 @@ async def test_login(username, password, should_login, expected_username):
         response = await client.post(
             "http://localhost/-/login",
             data={"csrftoken": csrftoken, "username": username, "password": password},
-            allow_redirects=False,
         )
         if should_login:
             assert response.status_code == 302
