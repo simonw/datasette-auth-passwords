@@ -10,7 +10,7 @@ Datasette plugin for authenticating access using passwords
 
 Install this plugin in the same environment as Datasette.
 
-    $ pip install datasette-auth-passwords
+    $ datasette install datasette-auth-passwords
 
 ## Demo
 
@@ -24,7 +24,11 @@ You can log in at https://datasette-auth-passwords-demo.datasette.io/-/login wit
 
 This plugin works based on a list of username/password accounts that are hard-coded into the plugin configuration.
 
-First, you'll need to create a password hash. You can do this using the tool located at `/-/password-tool` when the plugin is installed, or you can try use the hosted version of that tool at https://datasette-auth-passwords-demo.datasette.io/-/password-tool
+First, you'll need to create a password hash. There are three ways to do that:
+
+- Install the plugin, then use the interactive tool located at `/-/password-tool`
+- Use the hosted version of that tool at https://datasette-auth-passwords-demo.datasette.io/-/password-tool
+- Use the `datasette hash-password` command, described below
 
 Now add the following to your `metadata.json`:
 
@@ -51,6 +55,20 @@ You will now be able to log in to your instance using the form at `/-/login` wit
 
 You can include as many accounts as you like in the configuration, each with different usernames.
 
+### datasette hash-password
+
+The plugin exposes a new CLI command, `datasette hash-password`. You can run this without arguments to interactively create a new password hash:
+```
+% datasette hash-password
+Password: 
+Repeat for confirmation: 
+pbkdf2_sha256$260000$1513...
+```
+Or if you want to use it as part of a script, you can add the `--no-confirm` option to generate a hash directly from a value passed to standard input:
+```
+% echo 'my password' | datasette hash-password --no-confirm
+pbkdf2_sha256$260000$daa...
+```
 ### Specifying actors
 
 By default, a logged in user will result in an [actor block](https://datasette.readthedocs.io/en/stable/authentication.html#actors) that just contains their username:

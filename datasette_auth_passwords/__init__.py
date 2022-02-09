@@ -1,7 +1,9 @@
 from datasette import hookimpl
 from datasette.utils.asgi import Response
 from .utils import hash_password, verify_password, scope_has_valid_authorization
+import click
 from functools import wraps
+import sys
 
 
 async def password_tool(request, datasette):
@@ -92,3 +94,25 @@ def actor_from_request(datasette, request):
     actor = scope_has_valid_authorization(request.scope, datasette)
     if actor is not None:
         return actor
+
+
+@hookimpl
+def register_commands(cli):
+    def no_confirm(ctx, param, value):
+        if not value or ctx.resilient_parsing:
+            return
+        click.echo(hash_password(sys.stdin.read().strip()))
+        ctx.exit()
+
+    @cli.command(name="hash-password")
+    @click.password_option()
+    @click.option(
+        "--no-confirm",
+        is_flag=True,
+        callback=no_confirm,
+        expose_value=False,
+        is_eager=True,
+    )
+    def _hash_password(password):
+        "Return hash for provided password"
+        click.echo(hash_password(password))
