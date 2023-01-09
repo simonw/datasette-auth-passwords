@@ -5,7 +5,7 @@ import secrets
 ALGORITHM = "pbkdf2_sha256"
 
 
-def hash_password(password, salt=None, iterations=260000):
+def hash_password(password, salt=None, iterations=480000):
     if salt is None:
         salt = secrets.token_hex(16)
     assert salt and isinstance(salt, str) and "$" not in salt
