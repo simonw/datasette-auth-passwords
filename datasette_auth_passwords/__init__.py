@@ -116,3 +116,14 @@ def register_commands(cli):
     def _hash_password(password):
         "Return hash for provided password"
         click.echo(hash_password(password))
+
+
+@hookimpl
+def menu_links(datasette, actor):
+    if not actor:
+        return [
+            {
+                "href": datasette.urls.path("/-/login"),
+                "label": "Log in",
+            },
+        ]
