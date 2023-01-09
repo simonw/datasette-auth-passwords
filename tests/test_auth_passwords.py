@@ -84,6 +84,12 @@ async def test_login_warning_no_accounts():
 )
 async def test_login(username, password, should_login, expected_username):
     ds = Datasette(memory=True, metadata=TEST_METADATA)
+    # Menu should show 'Log in' option
+    html = (await ds.client.get("/")).text
+    LOG_IN = '<li><a href="/-/login">Log in</a></li>'
+    LOG_OUT = '<form action="/-/logout" method="post">'
+    assert LOG_IN in html
+    assert LOG_OUT not in html
     # Get csrftoken
     csrftoken = (await ds.client.get("/-/login")).cookies["ds_csrftoken"]
     response = await ds.client.post(
@@ -95,6 +101,10 @@ async def test_login(username, password, should_login, expected_username):
         ds_actor_cookie = response.cookies["ds_actor"]
         ds_actor = ds.unsign(ds_actor_cookie, "actor")["a"]
         assert ds_actor["id"] == expected_username
+        # Now that user is logged in, menu should show 'Log out' option
+        html = (await ds.client.get("/", cookies={"ds_actor": ds_actor_cookie})).text
+        assert LOG_IN not in html
+        assert LOG_OUT in html
     else:
         assert response.status_code == 200
         assert "Invalid username or password" in response.text
