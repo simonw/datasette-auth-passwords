@@ -20,6 +20,7 @@ def hash_password(password, salt=None, iterations=260000):
 def verify_password(password, password_hash):
     if (password_hash or "").count("$") != 3:
         return False
+    password_hash = password_hash.strip()
     algorithm, iterations, salt, b64_hash = password_hash.split("$", 3)
     iterations = int(iterations)
     assert algorithm == ALGORITHM

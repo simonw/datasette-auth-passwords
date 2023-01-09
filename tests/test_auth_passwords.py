@@ -39,6 +39,8 @@ def test_utils_hash_password():
 def test_verify_password():
     hashed_password = utils.hash_password("hello")
     assert utils.verify_password("hello", hashed_password)
+    # Should pass if there is trailing whitespace
+    assert utils.verify_password("hello", hashed_password + "\n")
     assert not utils.verify_password("hello2", hashed_password)
     # Should fail if hashed_password is invalid:
     assert not utils.verify_password("hello3", None)
