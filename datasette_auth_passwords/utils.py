@@ -45,8 +45,6 @@ def scope_has_valid_authorization(scope, datasette):
     username, _, password = decoded.partition(":")
     password_hash = accounts.get(username)
     if password_hash and verify_password(password, password_hash):
-        print("verified")
         return actors.get(username) or {"id": username}
     else:
-        print("no match", accounts, username, password, password_hash)
         return None
