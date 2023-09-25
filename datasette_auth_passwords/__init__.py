@@ -42,7 +42,7 @@ async def password_login(request, datasette):
         password_hash = accounts.get(username)
         if password_hash and verify_password(password, password_hash):
             actor = actors.get(username) or {"id": username}
-            response = Response.redirect("/")
+            response = Response.redirect(datasette.urls.path("/"))
             response.set_cookie("ds_actor", datasette.sign({"a": actor}, "actor"))
             return response
         else:
