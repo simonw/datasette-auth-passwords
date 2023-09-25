@@ -10,7 +10,9 @@ Datasette plugin for authenticating access using passwords
 
 Install this plugin in the same environment as Datasette.
 
-    $ datasette install datasette-auth-passwords
+```bash
+datasette install datasette-auth-passwords
+```
 
 ## Demo
 
@@ -58,15 +60,19 @@ You can include as many accounts as you like in the configuration, each with dif
 ### datasette hash-password
 
 The plugin exposes a new CLI command, `datasette hash-password`. You can run this without arguments to interactively create a new password hash:
+```bash
+datasette hash-password
 ```
-% datasette hash-password
+```
 Password: 
 Repeat for confirmation: 
 pbkdf2_sha256$260000$1513...
 ```
 Or if you want to use it as part of a script, you can add the `--no-confirm` option to generate a hash directly from a value passed to standard input:
+```bash
+echo 'my password' | datasette hash-password --no-confirm
 ```
-% echo 'my password' | datasette hash-password --no-confirm
+```
 pbkdf2_sha256$260000$daa...
 ```
 ### Specifying actors
