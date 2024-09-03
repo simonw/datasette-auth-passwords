@@ -87,7 +87,7 @@ async def test_login(username, password, should_login, expected_username):
     # Menu should show 'Log in' option
     html = (await ds.client.get("/")).text
     LOG_IN = '<li><a href="/-/login">Log in</a></li>'
-    LOG_OUT = '<form action="/-/logout" method="post">'
+    LOG_OUT = 'action="/-/logout"'
     assert LOG_IN in html
     assert LOG_OUT not in html
     # Get csrftoken
